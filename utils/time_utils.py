@@ -40,5 +40,3 @@ class MSTimestamp(object):
             return time.strftime('%d-%m-%Y %H:%M:%S', self.current / 1000)
         else:
             return time.strftime('%H:%M:%S', self.current / 1000)
-
-    

@@ -29,7 +29,7 @@ MARKETS_DATA_PATH = os.path.join(LOCAL_DATA_PATH, 'markets')
 
 # Set this to True if you want to use the local data instead of fetching it
 # from the API
-USE_LOCAL_DATA = True
+USE_LOCAL_DATA = False
 
 # Set this to True if you want to save the prices data fetched from the API to
 # csv files. (USE_LOCAL_DATA must be False)

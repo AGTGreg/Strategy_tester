@@ -4,7 +4,6 @@ the data we need such as markets and their prices and indicators.
 
 import os
 import copy
-import pprint
 
 import ccxt
 import pandas as pd
@@ -17,9 +16,11 @@ from utils.time_utils import MSTimestamp
 from utils.gc_profiler import time_function
 
 
-def init_data():
+def init_data(markets=None):
     """ Initialize the EXCHANGE object, get the availble markets and all their
     data. We need to run this in order to use the EXCHANGE and MARKETS objects.
+    If USE_LOCAL_DATA is True then the eschange is not initialized and the
+    MARKETS gets popullated by the local data.
     """
     if _settings.USE_LOCAL_DATA is False:
         _globals.EXCHANGE = init_exchange()
@@ -27,14 +28,18 @@ def init_data():
     _globals.CANDLESTICKS_COUNT = \
         _settings.PRICE_HISTORY_TIMEFRAME / _settings.CANDLESTICK_TIMEFRAME_INT
 
-    _globals.MARKETS = get_available_markets()
+    if markets is None:
+        _globals.MARKETS = load_all_available_markets()
+    else:
+        _globals.MARKETS = load_markets(markets)
 
-    init_markets_data()
-
-    clean_markets_list()
-
-    print('==> Finished initialization and analysis of {0} markets.'.format(
-        len(_globals.MARKETS)))
+    if bool(_globals.MARKETS):
+        get_price_history()
+        clean_markets_list()
+        print('==> Finished initialization of {0} markets.'.format(
+            len(_globals.MARKETS)))
+    else:
+        print('==> There are no markets to initialize :(')
 
     return True
 
@@ -47,12 +52,12 @@ def init_exchange():
     return exchange
 
 
-def get_available_markets():
+def load_all_available_markets():
     """ Get all the active markets that trade against our BASE_CURRENCY and are
     not included in our BLACKLIST.
     """
     markets = {}
-    
+
     if _settings.USE_LOCAL_DATA is False:
         # Get the markets dict from the API. Keep only the active ones.
         all_markets = _globals.EXCHANGE.load_markets(True)
@@ -63,19 +68,32 @@ def get_available_markets():
                 market_data['active'] is True
             ]):
                 markets[market] = market_data
-    
+
     else:
         # Create a markets dict from the files fount in MARKETS_DATA_PATH.
         mp = _settings.MARKETS_DATA_PATH
         markets_list = \
             [f for f in os.listdir(mp) if os.path.isfile(os.path.join(mp, f))]
-        markets = {mrkt.replace('.csv', ''):{} for mrkt in markets_list}
+        markets = {mrkt.replace('.csv', ''): {} for mrkt in markets_list}
 
     return markets
 
 
+def load_markets(markets):
+    """ Loads the data of the specified markets. Works only in LOCAL_DATA mode.
+    """
+    markets_data = {}
+    for market in markets:
+        market_path = \
+            os.path.join(_settings.MARKETS_DATA_PATH, market + '.csv')
+        if os.path.isfile(market_path):
+            markets_data[market] = {}
+    
+    return markets_data
+
+
 @time_function
-def init_markets_data():
+def get_price_history():
     """ Initializes all the available markets with their price history.
     Performs some basic statistical analysis and applies indicators.
     """
@@ -90,7 +108,7 @@ def init_markets_data():
 
     for symbol_name in _globals.MARKETS.keys():
         task = rn.new_task(
-            get_price_history_and_analysis,
+            fetch_market_price_history,
             kwargs={
                 'symbol_name': symbol_name,
                 'since': since,
@@ -105,19 +123,16 @@ def init_markets_data():
         data = task.result()
         _globals.MARKETS[data['symbol_name']].update(data)
 
-    # pp = pprint.PrettyPrinter(indent=2)
-    # pp.pprint(_globals.MARKETS)
 
-
-def get_price_history_and_analysis(symbol_name, since, exchange):
+def fetch_market_price_history(symbol_name, since, exchange):
     """ Returns the price_history (as a DataFrame) and state for the specified
-    market. If anything goes wrong, or if there is not enough data marks that
+    market. If anything goes wrong, or if there is not enough data, marks that
     market as inactive and returns no prices.
     """
     print('==> Fetching prices for', symbol_name)
-    
+
     data = {'symbol_name': symbol_name, 'price_history': None, 'active': True}
-    
+
     if _settings.USE_LOCAL_DATA is False:
         try:
             prices = exchange.fetch_ohlcv(
@@ -130,9 +145,10 @@ def get_price_history_and_analysis(symbol_name, since, exchange):
             # The market does not have enough data. Mark it as not-active and
             # return.
             if len(prices) < _globals.CANDLESTICKS_COUNT:
+                print('==> {0} does not have enough data.'.format(symbol_name))
                 data['active'] = False
                 return data
-            
+
             data['price_history'] = pd.DataFrame.from_records(
                 prices,
                 columns=['timestamp', 'open', 'high', 'low', 'close', 'volume']
@@ -140,12 +156,12 @@ def get_price_history_and_analysis(symbol_name, since, exchange):
 
             if _settings.SAVE_DATA is True:
                 csv_path = os.path.join(
-                    _settings.MARKETS_DATA_PATH, 
+                    _settings.MARKETS_DATA_PATH,
                     symbol_name.replace('/', '_') + '.csv'
                 )
                 data['price_history'].to_csv(
                     csv_path, index=True, header=True)
-    
+
     else:
         # Load local data
         data['price_history'] = pd.read_csv(
@@ -153,9 +169,21 @@ def get_price_history_and_analysis(symbol_name, since, exchange):
             header=0, index_col=0
         )
 
-    data = analyse_market(data)
-
     return data
+
+
+def clean_markets_list():
+    """ Iterates through the list of our available markets and removes the ones
+    that are not active.
+    """
+    print('==> Cleaning markets list.')
+
+    tmp_markets = copy.deepcopy(_globals.MARKETS)
+    for m, m_data in _globals.MARKETS.items():
+        if m_data['active'] is False:
+            del tmp_markets[m]
+
+    _globals.MARKETS = copy.deepcopy(tmp_markets)
 
 
 def analyse_market(data):
@@ -174,17 +202,3 @@ def analyse_market(data):
         data['indicators'] = inds
 
     return data
-
-
-def clean_markets_list():
-    """ Iterates through the list of our available markets and removes the ones
-    that are not active.
-    """
-    print('==> Cleaning markets list.')
-
-    tmp_markets = copy.deepcopy(_globals.MARKETS)
-    for m, m_data in _globals.MARKETS.items():
-        if m_data['active'] is False:
-            del tmp_markets[m]
-
-    _globals.MARKETS = copy.deepcopy(tmp_markets)
