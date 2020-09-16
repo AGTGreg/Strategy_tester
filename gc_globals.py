@@ -11,7 +11,8 @@ BUY_ORDERS = {}
 SELL_ORDERS = {}
 BALANCE = 0
 
-# This is the number of candlestics, every price_history should have at any
-# given time. This value is the result of this:
+# This is the number of candlestics that every market's price_history should
+# have in order to be considered worthy for saving.
+# This value is the result of this:
 # PRICE_HISTORY_TIMEFRAME / CANDLESTICK_TIMEFRAME
 CANDLESTICKS_COUNT = 0

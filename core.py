@@ -14,6 +14,8 @@ def update_local_data():
 def test_strategy_against(markets):
     _settings.USE_LOCAL_DATA = True
     data_manager.init_data(markets)
+    st = Strategy()
+    backtester.test_strategy(st)
 
 
 if __name__ == "__main__":

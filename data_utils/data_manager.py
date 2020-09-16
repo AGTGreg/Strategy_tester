@@ -11,7 +11,6 @@ from runium.core import Runium
 
 import gc_settings as _settings
 import gc_globals as _globals
-from data_utils import indicators
 from utils.time_utils import MSTimestamp
 from utils.gc_profiler import time_function
 
@@ -184,21 +183,3 @@ def clean_markets_list():
             del tmp_markets[m]
 
     _globals.MARKETS = copy.deepcopy(tmp_markets)
-
-
-def analyse_market(data):
-    """ Performs a basic statistics analysis of the price history and adds
-    indicators to the data.
-    """
-    symbol_name = data['symbol_name']
-
-    try:
-        print('==> Analysing {0}'.format(symbol_name))
-        inds = indicators.compute_indicators(data['price_history'])
-    except BaseException as err:
-        print(err)
-        data['active'] = False
-    else:
-        data['indicators'] = inds
-
-    return data

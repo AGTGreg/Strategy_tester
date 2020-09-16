@@ -22,7 +22,13 @@ CANDLESTICK_TIMEFRAME_INT = 5
 # The number of minutes of price history to keep for each market.
 PRICE_HISTORY_TIMEFRAME = 1440  # 1 day
 
-# If the path where our data is.
+# When testing a strategy, the backtester will walk through the candlesticks
+# one at a time and keep a certain amount of them to analyse and run the
+# strategy. TESTING_TIMEFRAME is the number of candlesticks the backtester is
+# allowed to keep at any time.
+TESTING_TIMEFRAME = 40
+
+# The path where our data is saved.
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 LOCAL_DATA_PATH = os.path.join(BASE_DIR, 'data')
 MARKETS_DATA_PATH = os.path.join(LOCAL_DATA_PATH, 'markets')
