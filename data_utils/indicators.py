@@ -3,9 +3,9 @@ import pandas as pd
 
 
 def compute_sma(prices, period):
-    smaFrame = pd.DataFrame(prices)
-    sma = smaFrame.rolling(window=period).mean()
-    return sma
+    sma = \
+        pd.Series(prices).rolling(window=period).mean().fillna(0)
+    return sma.to_numpy()
 
 
 def compute_ema(prices, period):
@@ -64,15 +64,13 @@ def compute_macd_histogram(prices, slow=26, fast=12, signal_frame=9):
 
 
 def compute_indicators(price_history):
-    """ Returns all the needed indicators in a pandas DataFrame.
+    """ Returns all the indicators as a dictionary.
     """
-    close_prices = price_history['close'].values
+
     return {
-        'SMA_FAST': compute_sma(close_prices, 3),
-        'SMA_MED': compute_sma(close_prices, 6),
-        'SMA_SLOW': compute_sma(close_prices, 20),
-        'RSI': compute_rsi(close_prices, 14),
-        'MACD_H': compute_macd_histogram(close_prices),
-        'HIGHEST_HIGH': price_history['high'].max(),
-        'LOWEST_LOW': price_history['low'].min()
+        'SMA_FAST': compute_sma(price_history['close'], 3),
+        'SMA_MED': compute_sma(price_history['close'], 6),
+        'SMA_SLOW': compute_sma(price_history['close'], 20),
+        'RSI': compute_rsi(price_history['close'], 14),
+        'MACD_H': compute_macd_histogram(price_history['close'])
     }

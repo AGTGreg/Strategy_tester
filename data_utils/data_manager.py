@@ -87,7 +87,7 @@ def load_markets(markets):
             os.path.join(_settings.MARKETS_DATA_PATH, market + '.csv')
         if os.path.isfile(market_path):
             markets_data[market] = {}
-    
+
     return markets_data
 
 
@@ -150,7 +150,8 @@ def fetch_market_price_history(symbol_name, since, exchange):
 
             data['price_history'] = pd.DataFrame.from_records(
                 prices,
-                columns=['timestamp', 'open', 'high', 'low', 'close', 'volume']
+                columns=[
+                    'timestamp', 'open', 'high', 'low', 'close', 'volume'],
             )
 
             if _settings.SAVE_DATA is True:

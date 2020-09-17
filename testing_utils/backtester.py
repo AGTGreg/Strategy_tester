@@ -5,20 +5,16 @@ from runium.core import Runium
 import gc_globals as _globals
 import gc_settings as _settings
 from data_utils.indicators import compute_indicators
+from utils.gc_profiler import time_function
 
 
+@time_function
 def test_strategy(strategy):
     """ Test a strategy against all loaded markets.
     """
-    rn = Runium(mode='multiprocessing')
-    trade_tasks = []
 
     for symbol_name in _globals.MARKETS:
-        task = rn.new_task(
-            walk_prices,
-            kwargs={'symbol_name': symbol_name, 'strategy': strategy}
-        ).run()
-        trade_tasks.append(task)
+        walk_prices(symbol_name, strategy)
 
 
 def walk_prices(symbol_name, strategy):
@@ -29,12 +25,12 @@ def walk_prices(symbol_name, strategy):
 
     market = _globals.MARKETS[symbol_name]
 
-    prices = market['price_history'].head(_settings.TESTING_TIMEFRAME).copy()
+    prices = \
+        market['price_history'].head(_settings.TESTING_TIMEFRAME).to_dict('series')
 
     for index, row in market['price_history'].iterrows():
+        # Allways keep TESTING_TIMEFRAME amount of candlesticks.
         if index >= _settings.TESTING_TIMEFRAME:
-            # Allways keep TESTING_TIMEFRAME amount of candlesticks.
-            prices = prices.append(row)
-            prices = prices[1:]
-
-    print(prices.head(50))
+            for index, value in row.items():
+                prices[index] = np.append(prices[index], value)[1:]
+            strategy.check_prices(symbol_name, prices)
