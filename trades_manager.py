@@ -1,19 +1,8 @@
-from types import SimpleNamespace
+import gc_globals as _globals
+from models import Order
 
-ORDERS = []
 
-
-def place_new_order(side, symbol_name, price):
-    if side not in ORDER_SIDES:
-        raise BaseException('Side must be one of {0}'.format(ORDER_SIDES))
-
-    new_order = SimpleNamespace(
-        side=side,
-        state='NEW',
-        symbol_name=symbol_name,
-        price=price
-    )
-
-    ORDERS.append(new_order)
-
+def new_buy_order(symbol_name, price):
+    new_order = Order('BUY', symbol_name, price)
+    _globals.BUY_ORDERS.append(new_order)
     return new_order

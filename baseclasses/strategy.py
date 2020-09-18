@@ -1,5 +1,4 @@
-import pandas as pd
-import numpy as np
+import gc_globals as _globals
 from data_utils.indicators import compute_indicators
 
 
@@ -16,21 +15,23 @@ class BaseStrategy(object):
         self.symbol_name = None
         self.price_data = None
 
-    def check_prices(self, symbol_name, price_history):
+    def run(self, symbol_name, price_history):
         self.symbol_name = symbol_name
         indicators = compute_indicators(price_history)
         price_history.update(indicators)
         self.price_data = price_history
 
         self.buy()
-        self.sell()
+        for order in _globals.BUY_ORDERS:
+            if order.active is True and order.symbol_name == self.symbol_name:
+                self.sell(order)
 
     def buy(self):
         """ Returns True if the strategy dictates we should buy.
         """
         pass
 
-    def sell(self):
+    def sell(self, buy_order):
         """ Returns true if the strategy dictates we should sell.
         """
         pass

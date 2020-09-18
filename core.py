@@ -1,7 +1,6 @@
-import gc_globals as _globals
 import gc_settings as _settings
 from data_utils import data_manager
-from testing_utils import backtester
+import backtester
 from strategy import Strategy
 
 
@@ -20,4 +19,4 @@ def test_strategy_against(markets):
 
 if __name__ == "__main__":
     # update_local_data()
-    test_strategy_against(['ZIL_USDT'])
+    test_strategy_against(['ADA_USDT', 'AION_USDT', 'BTC_USDT', 'ZIL_USDT'])
