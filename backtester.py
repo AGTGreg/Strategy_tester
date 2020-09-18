@@ -2,6 +2,7 @@ import numpy as np
 
 import gc_globals as _globals
 import gc_settings as _settings
+from utils.plot import plot_results
 from utils.gc_profiler import time_function
 
 
@@ -12,6 +13,7 @@ def test_strategy(strategy):
     for symbol_name in _globals.MARKETS:
         print(symbol_name)
         walk_prices(symbol_name, strategy)
+        plot_results(symbol_name)
 
 
 def walk_prices(symbol_name, strategy):

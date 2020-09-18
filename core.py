@@ -2,6 +2,7 @@ import gc_settings as _settings
 from data_utils import data_manager
 import backtester
 from strategy import Strategy
+from utils import plot
 
 
 def update_local_data():
@@ -19,4 +20,6 @@ def test_strategy_against(markets):
 
 if __name__ == "__main__":
     # update_local_data()
-    test_strategy_against(['ADA_USDT', 'AION_USDT', 'BTC_USDT', 'ZIL_USDT'])
+    test_strategy_against(['ADA_USDT'])
+    # plot.plot_results()
+    # plot.plot('ADA_USDT')

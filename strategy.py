@@ -19,5 +19,4 @@ class Strategy(BaseStrategy):
             price_change < -1
         ]):
             print('SELL at {0}%'.format(price_change))
-            print('Holded for', buy_order.hold_duration())
             buy_order.sell(self.price_data['close'][-1])
