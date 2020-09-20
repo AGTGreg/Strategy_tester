@@ -6,16 +6,16 @@ from utils.plot import plot_results
 from utils.gc_profiler import time_function
 
 
-@time_function
 def test_strategy(strategy):
     """ Test a strategy against all loaded markets.
     """
     for symbol_name, market in _globals.MARKETS.items():
         print(symbol_name)
         walk_prices(market, strategy)
-        # plot_results(symbol_name)
+        plot_results(symbol_name)
 
 
+@time_function
 def walk_prices(market, strategy):
     """ Iterates over the prices and indicator data and tests the strategy
     against them.

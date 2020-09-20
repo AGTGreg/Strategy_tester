@@ -31,7 +31,7 @@ class Order:
             sell_order.side = 'SELL'
             sell_order.price = price
             sell_order.state = 'COMMITTED'
-            self.created = timestamp
+            sell_order.created = timestamp
             SELL_ORDERS[self.id] = sell_order
             self.active = False
 
