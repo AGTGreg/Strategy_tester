@@ -10,19 +10,17 @@ from utils.gc_profiler import time_function
 def test_strategy(strategy):
     """ Test a strategy against all loaded markets.
     """
-    for symbol_name in _globals.MARKETS:
+    for symbol_name, market in _globals.MARKETS.items():
         print(symbol_name)
-        walk_prices(symbol_name, strategy)
-        plot_results(symbol_name)
+        walk_prices(market, strategy)
+        # plot_results(symbol_name)
 
 
-def walk_prices(symbol_name, strategy):
+def walk_prices(market, strategy):
     """ Iterates over the prices and indicator data and tests the strategy
     against them.
     """
-    print('==> Testing strategy against {0}'.format(symbol_name))
-
-    market = _globals.MARKETS[symbol_name]
+    print('==> Testing strategy against {0}'.format(market['symbol_name']))
 
     prices = \
         market['price_history'].head(
@@ -33,4 +31,4 @@ def walk_prices(symbol_name, strategy):
         if index >= _settings.TESTING_TIMEFRAME:
             for index, value in row.items():
                 prices[index] = np.append(prices[index], value)[1:]
-            strategy.run(symbol_name, prices)
+            strategy.run(market, prices)

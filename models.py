@@ -8,26 +8,31 @@ from data_utils.field_validators import is_order_side, is_order_state
 
 @dataclass
 class Order:
-    symbol_name: str = Field(str)
+    symbol_name: str
     price: float = Field(float, default=0.0)
     side: str = Field(str, validators=[is_order_side], default='BUY')
     state: str = Field(str, validators=[is_order_state], default='COMMITTED')
     active: bool = Field(bool, default=True)
     created: datetime = field(default_factory=datetime.now)
 
-    def buy(self, price):
+    def id(self):
+        return "_".join([self.side, self.symbol_name, self.created])
+
+    def buy(self, price, timestamp):
         self.side = 'BUY'
         self.price = price
-        BUY_ORDERS.append(self)
+        self.created = timestamp
+        BUY_ORDERS[self.id] = self
 
-    def sell(self, price):
+    def sell(self, price, timestamp):
         if self.side == 'BUY':
             sell_order = deepcopy(self)
             sell_order.buy_order = self
             sell_order.side = 'SELL'
             sell_order.price = price
             sell_order.state = 'COMMITTED'
-            SELL_ORDERS.append(sell_order)
+            self.created = timestamp
+            SELL_ORDERS[self.id] = sell_order
             self.active = False
 
     def price_change(self, current_price):

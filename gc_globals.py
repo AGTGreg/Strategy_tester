@@ -7,9 +7,8 @@ change a setting go to gc_settings.py.
 ACTIVE = False
 EXCHANGE = None
 MARKETS = {}
-ORDERS = []
-BUY_ORDERS = []
-SELL_ORDERS = []
+BUY_ORDERS = {}
+SELL_ORDERS = {}
 BALANCE = 0
 
 # This is the number of candlestics that every market's price_history should
