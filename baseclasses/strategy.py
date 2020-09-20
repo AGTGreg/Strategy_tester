@@ -23,9 +23,10 @@ class BaseStrategy(object):
         price_history.update(indicators)
         self.price_data = price_history
 
-        active_orders = {
-            order_id: order for order_id, order in \
-                _globals.BUY_ORDERS.items() if order.active is True}
+        active_orders = {}
+        for order_id, order in _globals.BUY_ORDERS.items():
+            if order.symbol_name == self.symbol_name and order.active is True:
+                active_orders[order_id] = order
 
         if len(active_orders) == 0:
             self.buy()

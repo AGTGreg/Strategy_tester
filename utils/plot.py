@@ -44,10 +44,12 @@ def plot_results(symbol_name):
     )
 
     for order_id, order in _globals.BUY_ORDERS.items():
-        ax.axvline(order.created, c='green')
+        if (order.symbol_name == symbol_name):
+            ax.axvline(order.created, c='green')
 
     for order_id, order in _globals.SELL_ORDERS.items():
-        ax.axvline(order.created, c='red')
+        if (order.symbol_name == symbol_name):
+            ax.axvline(order.created, c='red')
 
     plt.xlabel('Time')
     plt.ylabel('Price')

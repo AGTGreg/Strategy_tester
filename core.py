@@ -20,6 +20,4 @@ def test_strategy_against(markets):
 
 if __name__ == "__main__":
     # update_local_data()
-    test_strategy_against(['ADA_USDT'])
-    # plot.plot_results()
-    # plot.plot('ADA_USDT')
+    test_strategy_against(['ADA_USDT', 'ZIL_USDT', 'BTC_USDT', 'ETH_USDT'])

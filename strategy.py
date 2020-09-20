@@ -20,8 +20,9 @@ class Strategy(BaseStrategy):
             )
 
     def sell(self, buy_order):
+        price_change = buy_order.price_change(self.price_data['close'][-1])
+
         if self.price_data['SMA_FAST'][-1] < self.price_data['SMA_SLOW'][-1]:
-            price_change = buy_order.price_change(self.price_data['close'][-1])
             print('SELL {0} at {1}%'.format(self.symbol_name, price_change))
             buy_order.sell(
                 self.price_data['close'][-1],
