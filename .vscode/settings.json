@@ -1,7 +1,0 @@
-{
-  "python.linting.pylintEnabled": false,
-  "python.linting.flake8Enabled": true,
-  "python.linting.enabled": true,
-  "files.trimTrailingWhitespace": true,
-  "python.pythonPath": "/home/greg/Projects/strategy_tester_env/bin/python"
-}
